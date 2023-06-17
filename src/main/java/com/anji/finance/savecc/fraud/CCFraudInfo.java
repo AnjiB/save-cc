@@ -1,7 +1,6 @@
 package com.anji.finance.savecc.fraud;
 
 import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,4 +23,5 @@ public class CCFraudInfo {
 	
 	private FraudProps fraudProps;
 	
+	private Error error;
 }

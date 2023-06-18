@@ -3,6 +3,7 @@ package com.anji.finance.savecc.fraud;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -11,9 +12,10 @@ import lombok.NoArgsConstructor;
  */
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CCFraudInfo {
+public class CCFraudInfo extends Error {
 
 	private String ccNumber;
 	
@@ -22,6 +24,5 @@ public class CCFraudInfo {
 	private LocalDate expDate;
 	
 	private FraudProps fraudProps;
-	
-	private Error error;
+
 }

@@ -9,5 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Error {
 
-	private String message;
+	private String timestamp;
+	
+	private Integer status;
+	
+	private String error;
+	
+	private String path;
 }

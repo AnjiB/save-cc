@@ -102,7 +102,7 @@ public class SaveCcPactConsumerTest {
 		ApiResponse response = ftc.getFraudScoreForValidCreditCard("test", "2023-03-31", Map.of("Authorization", "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24="));
 		assertThat(response.getStatusCode()).isEqualTo(500);
 		var body = response.getResponseBodyAs(CCFraudInfo.class);
-		assertThat(body.getError().getMessage()).isEqualTo("There is no credit with given card number. Please enter valid credit card");
+		assertThat(body.getError()).isEqualTo("There is no credit with given card number. Please enter valid credit card");
 	}
 	
 }

@@ -87,12 +87,10 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<dependency>
-			
+		<dependency>	
 			<groupId>SimpleApiTest</groupId>
 			<artifactId>SimpleApiTest</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		
 		</dependency>
 		
 	</dependencies>

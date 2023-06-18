@@ -22,6 +22,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
 @PactTestFor(providerName="fraud-service-provider")
 public class SaveCcPactConsumerTest {
 	
+	private static final String BASIC_AUTH_TOKEN = "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24=";
 	private static final String SAVE_CREDIT_CARD_CONSUMER = "save-credit-card-consumer";
 
 
@@ -43,7 +44,7 @@ public class SaveCcPactConsumerTest {
 				.uponReceiving("Fraud score for a valid credit card")
 				.path("/v1/fraudcheck/score")
 				.encodedQuery("cc=4532788397355156&exp=2023-03-31")
-				.headers(Map.of("Authorization", "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24="))
+				.headers(Map.of("Authorization", BASIC_AUTH_TOKEN))
 				.method("GET")
 				.willRespondWith()
 				.status(200)
@@ -57,19 +58,39 @@ public class SaveCcPactConsumerTest {
 	public RequestResponsePact getErrorMessageForInvalidCreditCard(PactDslWithProvider builder) {
 		
 		String responseJson = "{\n"
-				+ "  \"error\": {\n"
-				+ "    \"message\": \"There is no credit with given card number. Please enter valid credit card\"\n"
-				+ "  }\n"
+				+ "  \"error\": \"There is no credit with given card number. Please enter valid credit card\"\n"
 				+ "}";
 		
 		
 		return builder.given("Invalid credit card is provided")
-				.uponReceiving("Error message from ccfc service")
+				.uponReceiving("Invalid CC Error message from ccfc service")
 				.path("/v1/fraudcheck/score")
+				.headers(Map.of("Authorization", BASIC_AUTH_TOKEN))
 				.encodedQuery("cc=test&exp=2023-03-31")
 				.method("GET")
 				.willRespondWith()
 				.status(500)
+				.body(responseJson)
+				.toPact();
+		
+	}
+	
+	
+	@Pact(consumer= SAVE_CREDIT_CARD_CONSUMER)
+	public RequestResponsePact getErrorMessageForBadCredentials(PactDslWithProvider builder) {
+		
+		String responseJson = "{\n"
+				+ "  \"error\": \"Bad credentials\"\n"
+				+ "}";
+		
+		return builder.given("Invalid Auth Token is Provided")
+				.uponReceiving("Invalid Auth Error message from ccfc service")
+				.path("/v1/fraudcheck/score")
+				.headers(Map.of("Authorization", BASIC_AUTH_TOKEN))
+				.encodedQuery("cc=4532788397355156&exp=2023-03-31")
+				.method("GET")
+				.willRespondWith()
+				.status(401)
 				.body(responseJson)
 				.toPact();
 		
@@ -82,7 +103,7 @@ public class SaveCcPactConsumerTest {
 	public void testFraudScoreForValidCreditCard(MockServer server) throws Exception {
 	
 		FraudTestClient ftc = new FraudTestClient(server.getUrl());
-		ApiResponse response = ftc.getFraudScoreForValidCreditCard("4532788397355156", "2023-03-31", Map.of("Authorization", "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24="));
+		ApiResponse response = ftc.getFraudScoreForValidCreditCard("4532788397355156", "2023-03-31", Map.of("Authorization", BASIC_AUTH_TOKEN));
 		assertThat(response.getStatusCode()).isEqualTo(200);
 		var body = response.getResponseBodyAs(CCFraudInfo.class);
 		assertThat(body.getCcNumber()).isEqualTo("4532788397355156");
@@ -96,13 +117,24 @@ public class SaveCcPactConsumerTest {
 	
 	@Test
 	@PactTestFor(pactMethod = "getErrorMessageForInvalidCreditCard")
-	public void testErroMessageForValidCreditCard(MockServer server) throws Exception {
+	public void testErroMessageForInvalidCreditCard(MockServer server) throws Exception {
 		
 		FraudTestClient ftc = new FraudTestClient(server.getUrl());
-		ApiResponse response = ftc.getFraudScoreForValidCreditCard("test", "2023-03-31", Map.of("Authorization", "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24="));
+		ApiResponse response = ftc.getFraudScoreForValidCreditCard("test", "2023-03-31", Map.of("Authorization", BASIC_AUTH_TOKEN));
 		assertThat(response.getStatusCode()).isEqualTo(500);
 		var body = response.getResponseBodyAs(CCFraudInfo.class);
 		assertThat(body.getError()).isEqualTo("There is no credit with given card number. Please enter valid credit card");
+	}
+	
+	@Test
+	@PactTestFor(pactMethod = "getErrorMessageForBadCredentials")
+	public void testErroMessageForBadCreds(MockServer server) throws Exception {
+		
+		FraudTestClient ftc = new FraudTestClient(server.getUrl());
+		ApiResponse response = ftc.getFraudScoreForValidCreditCard("4532788397355156", "2023-03-31", Map.of("Authorization", BASIC_AUTH_TOKEN));
+		assertThat(response.getStatusCode()).isEqualTo(401);
+		var body = response.getResponseBodyAs(CCFraudInfo.class);
+		assertThat(body.getError()).isEqualTo("Bad credentials");
 	}
 	
 }

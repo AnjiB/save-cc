@@ -1,0 +1,2 @@
+docker run --rm -v ${PWD}:${PWD} -e PACT_BROKER_BASE_URL -e PACT_BROKER_TOKEN pactfoundation/pact-cli:latest broker \
+record-deployment --pacticipant save-credit-card-consumer --version 1.0.0 --environment production

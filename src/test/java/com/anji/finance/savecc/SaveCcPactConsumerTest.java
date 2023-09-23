@@ -18,13 +18,19 @@ import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 
 
+/**
+ * @author anjiboddupally
+ *
+ */
+
+
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(providerName="fraud-service-provider")
 public class SaveCcPactConsumerTest {
 	
 	private static final String BASIC_AUTH_TOKEN = "Basic YW5qaWFkbWluOmFnb29kcWFwZXJzb24=";
 	private static final String SAVE_CREDIT_CARD_CONSUMER = "save-credit-card-consumer";
-
+	
 
 	@Pact(consumer= SAVE_CREDIT_CARD_CONSUMER)
 	public RequestResponsePact getScoreForValidCreditCard(PactDslWithProvider builder) {
